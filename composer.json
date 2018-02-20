@@ -1,9 +1,9 @@
 {
-    "name": "danielkiesshau/ecommerce",
+    "name": "hcodebr/ecommerce",
     "authors": [
         {
-            "name": "Daniel Kiesshau",
-            "email": "danielkiesshau@outlook.com"
+            "name": "Hcode Treinamentos",
+            "email": "suporte@hcode.com.br"
         }
     ],
     "require": {
@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Hcode\\": "vendor\\hcodebr\\php-classes\\src"
+            "": "vendor\\hcodebr\\php-classes\\src"
         }
     }
 }
