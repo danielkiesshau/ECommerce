@@ -3,9 +3,12 @@ namespace Hcode\Model;
 // Contra barra inicial indica para começar da root do projeto
 use \Hcode\DB\Sql;
 use \Hcode\Model;
+use \Hcode\Mailer;
 
 class User extends Model{
-    const SESSION="user";
+    const SESSION = "user";
+    const SECRET = "aE$3!d&jkkD";
+    
     public static function login($login,$password){
         $sql = new Sql();
         
@@ -99,6 +102,90 @@ class User extends Model{
         ));
          
     }
+    
+    public static function getForgot($email){
+        $sql = new Sql();
+        $rs = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE a.desemail=:EMAIL;",array(":EMAIL"=>$email));
+        if(count($rs) == 0){
+            throw new \Exception("Não foi possível recuperar a senha");
+        }else{
+            $data = $rs[0];
+            
+            $rs2 = $sql->select("CALL sp_userspasswordsrecoveries_create(:iduser, :desip)",array(
+                ":iduser"=>$data['iduser'],
+                ":desip"=>$_SERVER['REMOTE_ADDR']
+            ));
+            if(count($rs2) == 0){
+                throw new \Exception("Não foi possível recuperar a senha");
+            }else{
+                $dataRecovery = $rs2[0];
+  
+                //Encrypting data for recovery
+                $cipher = "aes-128-gcm";
+                $iv = User::ivLen($cipher);
+                echo "<br/><br/>IDRecovery: ".$dataRecovery['idrecovery'];
+                $ciphertext = openssl_encrypt($dataRecovery['idrecovery'], $cipher, User::SECRET, $options = 0, $iv, $tag);
+                echo "<br/>Tag: ".$tag."<br/>";
+                echo "<br/>CipherText: ".$ciphertext."<br/>";
+                $link = "http://e-commerce.com/admin/forgot/reset?code=".$ciphertext;
+                echo "<br/>".$link;
+                $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir Senha! e-commerce", "forgot", 
+                array(
+                    "name"=>$data['desperson'],
+                    "link"=>$link
+                ));
+                
+                $mailer->send();
+                
+                return $data;
+                
+            }
+        }
+        
+    }
+    
+    public static function validForgotDeCrypt($code){
+        //Decrypting id recovery
+        $idrecovery = User::decrypt('aes-128-gcm',$code);
+        echo "ID: ".$idrecovery."<br/>Code:  ".$code;
+        
+        $sql = new Sql();
+        
+        //Inner join to retrieve name of the person to use it in the template
+        //dtrecory must be NULL, that shows us that it has never been used, and in a interval below 1 hour
+        $rs=  $sql->select('SELECT * FROM tb_userspasswordsrecoveries a 
+        INNER JOIN tb_users USING(iduser) 
+        INNER JOIN tb_persons USING(idperson) 
+        WHERE a.idrecovery = :idrecovery AND a.dtrecovery IS NULL 
+        AND DATE_ADD(a.dtregister, INTERVAL 24 HOUR) >= NOW())',array(":idrecovery"=>$idrecovery));
+        
+        if(count($rs) == 0){
+            throw new \Exception("Não foi possível recuperar a senha");
+        }else{
+            return $rs[0];
+        }
+        
+    }
+
+    
+    private static function encrypt($cipher, $dataRecovery){
+        
+        return $encrypted;
+    }
+    
+    private static function decrypt($cipher, $encrypted){
+        $iv = User::ivLen($cipher);
+        $decrypted = openssl_decrypt($encrypted, $cipher, User::SECRET, $options = 0, $iv, $tag);
+        echo "<br/>".$decrypted;
+        return $decrypted;   
+    }
+    
+    private static function ivLen($cipher){
+        $ivlen = openssl_cipher_iv_length($cipher);
+        return openssl_random_pseudo_bytes($ivlen);
+    }
+    
+   
     
 }
 

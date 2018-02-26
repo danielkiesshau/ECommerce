@@ -46,7 +46,7 @@
     </div> <!-- End slider area -->
     
     <div class="promo-area">
-       
+        <div class="zigzag-bottom"></div>
         <div class="container">
             <div class="row">
                 <div class="col-md-3 col-sm-6">
