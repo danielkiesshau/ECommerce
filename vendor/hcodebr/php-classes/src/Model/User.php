@@ -7,7 +7,7 @@ use \Hcode\Mailer;
 
 class User extends Model{
     const SESSION = "user";
-    const SECRET = "aE$3!d&jkkD";
+    const SECRET = "Hcode Store";
     
     public static function login($login,$password){
         $sql = new Sql();
@@ -103,7 +103,7 @@ class User extends Model{
          
     }
     
-    public static function getForgot($email){
+    public static function getForgot($email, $inadmin = true){
         $sql = new Sql();
         $rs = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE a.desemail=:EMAIL;",array(":EMAIL"=>$email));
         if(count($rs) == 0){
@@ -121,14 +121,16 @@ class User extends Model{
                 $dataRecovery = $rs2[0];
   
                 //Encrypting data for recovery
-                $cipher = "aes-128-gcm";
-                $iv = User::ivLen($cipher);
-                echo "<br/><br/>IDRecovery: ".$dataRecovery['idrecovery'];
-                $ciphertext = openssl_encrypt($dataRecovery['idrecovery'], $cipher, User::SECRET, $options = 0, $iv, $tag);
-                echo "<br/>Tag: ".$tag."<br/>";
-                echo "<br/>CipherText: ".$ciphertext."<br/>";
-                $link = "http://e-commerce.com/admin/forgot/reset?code=".$ciphertext;
-                echo "<br/>".$link;
+                $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+                $code = openssl_encrypt($dataRecovery['idrecovery'], 'aes-256-cbc', User::SECRET, 0, $iv);
+                $result = base64_encode($iv.$code);
+                
+                if ($inadmin === true) {
+                    $link = "http://e-commerce.com//admin/forgot/reset?code=$result";
+                } else {
+                    $link = "http://e-commerce.com//forgot/reset?code=$result";
+                } 
+
                 $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir Senha! e-commerce", "forgot", 
                 array(
                     "name"=>$data['desperson'],
@@ -144,10 +146,13 @@ class User extends Model{
         
     }
     
-    public static function validForgotDeCrypt($code){
+    public static function validForgotDeCrypt($result){
         //Decrypting id recovery
-        $idrecovery = User::decrypt('aes-128-gcm',$code);
-        echo "ID: ".$idrecovery."<br/>Code:  ".$code;
+        $result = base64_decode($result);
+        $code = mb_substr($result, openssl_cipher_iv_length('aes-256-cbc'), null, '8bit');
+        $iv = mb_substr($result, 0, openssl_cipher_iv_length('aes-256-cbc'), '8bit');;
+        $idrecovery = openssl_decrypt($code, 'aes-256-cbc', User::SECRET, 0, $iv);
+        
         
         $sql = new Sql();
         
@@ -157,7 +162,7 @@ class User extends Model{
         INNER JOIN tb_users USING(iduser) 
         INNER JOIN tb_persons USING(idperson) 
         WHERE a.idrecovery = :idrecovery AND a.dtrecovery IS NULL 
-        AND DATE_ADD(a.dtregister, INTERVAL 24 HOUR) >= NOW())',array(":idrecovery"=>$idrecovery));
+        AND DATE_ADD(a.dtregister, INTERVAL 24 HOUR) >= NOW()',array(":idrecovery"=>$idrecovery));
         
         if(count($rs) == 0){
             throw new \Exception("Não foi possível recuperar a senha");
@@ -167,22 +172,20 @@ class User extends Model{
         
     }
 
-    
-    private static function encrypt($cipher, $dataRecovery){
+    public static function setForgotUsed($idrecovery){
+        $sql = new Sql();
         
-        return $encrypted;
+        $sql->select("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery=:idrecovery",array(":idrecovery"=>$idrecovery));
     }
     
-    private static function decrypt($cipher, $encrypted){
-        $iv = User::ivLen($cipher);
-        $decrypted = openssl_decrypt($encrypted, $cipher, User::SECRET, $options = 0, $iv, $tag);
-        echo "<br/>".$decrypted;
-        return $decrypted;   
-    }
-    
-    private static function ivLen($cipher){
-        $ivlen = openssl_cipher_iv_length($cipher);
-        return openssl_random_pseudo_bytes($ivlen);
+    public function setPassword($password){
+        
+        $sql = new Sql();
+        
+        $sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
+            ":password"=>$password,
+            ":iduser"=>$this->getiduser()
+        ));
     }
     
    

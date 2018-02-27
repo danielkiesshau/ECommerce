@@ -90,6 +90,12 @@ class Mailer{
         //Attach an image file
         $this->mail->addAttachment('images/phpmailer_mini.png');
 
+        
+
+    }
+
+
+    public function send(){
         //send the message, check for errors
         if (!$this->mail->send()) {
             echo "Mailer Error: " . $this->mail->ErrorInfo;
@@ -101,12 +107,6 @@ class Mailer{
             #    echo "Message saved!";
             #}
         }
-
-    }
-
-
-    public function send(){
-        return $this->mail->send();
     }
 }
 
