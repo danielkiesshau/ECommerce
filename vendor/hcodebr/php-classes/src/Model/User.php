@@ -162,7 +162,7 @@ class User extends Model{
         INNER JOIN tb_users USING(iduser) 
         INNER JOIN tb_persons USING(idperson) 
         WHERE a.idrecovery = :idrecovery AND a.dtrecovery IS NULL 
-        AND DATE_ADD(a.dtregister, INTERVAL 24 HOUR) >= NOW()',array(":idrecovery"=>$idrecovery));
+        AND DATE_ADD(a.dtregister, INTERVAL 1 HOUR) >= NOW()',array(":idrecovery"=>$idrecovery));
         
         if(count($rs) == 0){
             throw new \Exception("Não foi possível recuperar a senha");
