@@ -11,7 +11,7 @@ class Model{
       
         switch($method){
             case "get":
-                return $this->values[$fieldName];
+                return (isset($this->values[$fieldName])) ? $this->values[$fieldName] : NULL;
             break;
             case "set":
                 //First argument will be passed to the values
@@ -21,7 +21,7 @@ class Model{
     }
     
     public function setData($data = array()){
-        //This will create objects and set each field in that the DB encountered.
+        //This will set objects's  fields for each $key in that the DB encountered.
         foreach($data as $key=>$value){
             //use the {} brackets to set dynamic strings
             $this->{"set".$key}($value);
