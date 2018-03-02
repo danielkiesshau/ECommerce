@@ -15,20 +15,36 @@ class Product extends Model{
    
     public function save(){
         $sql = new Sql();
+       
+    
         $rs = $sql->select("CALL sp_products_save(:idproduct, :desproduct, :vlprice, :vlwidth, :vlheight, :vllenght, :vlweight, :desurl)" , array(
             ":idproduct"=>$this->getidproduct(),
             ":desproduct"=>$this->getdesproduct(),
             ":vlprice"=>$this->getvlprice(),
             ":vlwidth"=>$this->getvlwidth(),
             ":vlheight"=>$this->getvlheight(),
-            ":vllenght"=>$this->getvllenght(),
+            ":vllenght"=>$this->getvllength(),
             ":vlweight"=>$this->getvlweight(),
             ":desurl"=>$this->getdesurl()
         ));
+    
 
         $this->setData($rs[0]);
         
     }
+    
+    public static function checkList($list){
+        foreach($list as &$row){
+            $p = new Product();
+            $p->setData($row);
+            $row = $p->getValues();
+            
+        }
+        
+        return $list;
+    }
+    
+
     
     public function get($idproduct){
         $sql = new Sql();
@@ -38,7 +54,67 @@ class Product extends Model{
     
     public function delete(){
         $sql = new Sql();
-        $sql->query("DELETE FROM tb_products  WHERE idproducts = :idproducts", array(":idproducts"=>$this->getidproducts()));
+        $sql->query("DELETE FROM tb_products  WHERE idproduct = :idproduct", array(":idproduct"=>$this->getidproduct()));
+    }
+    
+    public function checkPhoto(){
+        
+        if(file_exists($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.
+                       "res".DIRECTORY_SEPARATOR.
+                       "site".DIRECTORY_SEPARATOR.
+                       "img".DIRECTORY_SEPARATOR.
+                       "products".DIRECTORY_SEPARATOR.
+                       $this->getidproduct().".jpg")){
+            $url = "/res/site/img/products/".$this->getidproduct().".jpg";
+        }else{
+            $url = "/res/site/img/product.jpg";
+            
+        }
+        
+        return $this->setdesphoto($url);
+    }
+    
+    public function getValues(){
+        $this->checkPhoto();
+        $values = parent::getValues();
+        
+        return $values;
+    }
+    
+    public function setPhoto($file){
+        $extension = explode('.', $file["name"]);
+        $extension = end($extension);
+        
+        $dest = $_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR.
+                       "res".DIRECTORY_SEPARATOR.
+                       "site".DIRECTORY_SEPARATOR.
+                       "img".DIRECTORY_SEPARATOR.
+                       "products".DIRECTORY_SEPARATOR.
+                       $this->getidproduct().".jpg";
+        
+        switch($extension){
+            case "jpg":
+            case "jpeg":
+                $image = imagecreatefromjpeg($file["tmp_name"]);
+                break;
+            case "gif":
+                $image = imagecreatefromgif($file["tmp_name"]);
+                break;
+            case "png":
+                $image = imagecreatefrompng($file["tmp_name"]);
+                break;
+                
+        }
+        
+        echo $dest;
+        echo "<br/>".$image;
+        echo '<img src ='.$dest.'/>';
+        
+        
+        imagejpeg($image, $dest);
+        
+        
+        $this->checkPhoto();
     }
     
 }
