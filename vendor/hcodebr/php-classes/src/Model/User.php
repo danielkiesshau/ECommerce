@@ -5,9 +5,50 @@ use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Mailer;
 
+
 class User extends Model{
-    const SESSION = "user";
+    const SESSION = "User";
     const SECRET = "Hcode Store";
+    
+    public static function checkLogin($inadmin = true){
+        if(
+            !isset($_SESSION[User::SESSION])
+            ||
+            !$_SESSION[User::SESSION]
+            ||
+            !(int)$_SESSION[User::SESSION]["iduser"] > 0
+        ){//Não está logado
+    
+            $rt = false;    
+        }else{
+            
+            if($inadmin == true && ((bool)$_SESSION[User::SESSION]['indadmin'] === true)){//Rota de ADM
+                
+                $rt = true;
+                
+            }else if($inadmin == false){//Rota não de ADM, exemplo carrinho
+                
+                $rt = true;                
+            }else{
+                echo "ultimo else";
+                $rt = false;
+            }
+        }
+        
+        return $rt;
+    }
+    
+    public static function getFromSession(){
+        $user = new User();
+        
+        if(isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0){
+        
+            $user->setData($_SESSION[User::SESSION]);
+            
+        }
+        return $user;
+        
+    }
     
     public static function login($login,$password){
         $sql = new Sql();
@@ -33,17 +74,15 @@ class User extends Model{
     }
     
     public static function verifyLogin($inadmin = true){
-        if(
-            !isset($_SESSION[User::SESSION])
+        if(!isset($_SESSION[User::SESSION])
             ||
             !$_SESSION[User::SESSION]
             ||
-            !(int)$_SESSION[User::SESSION]["iduser"] > 0
-            || 
-            (bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin
-        ){
+            !(int)$_SESSION[User::SESSION]["iduser"] > 0){
+            
             header("Location: /admin/login");
             exit;
+            
         }
     }
     
