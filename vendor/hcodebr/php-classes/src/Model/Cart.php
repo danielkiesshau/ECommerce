@@ -19,9 +19,9 @@ class Cart extends Model{
         $cart = new Cart();
         
         if(isset($_SESSION[Cart::SESSION]) && (int)$_SESSION[Cart::SESSION]['idcart'] > 0){
-            
+          
             $cart->get((int)$_SESSION[Cart::SESSION]['idcart']);
-            
+          
         }else{
             
             $cart->getFromSesssionId();
@@ -34,12 +34,24 @@ class Cart extends Model{
                 
                 
                 if(User::checkLogin(false) === false){
+                    
                     $user = User::getFromSession(); 
                     
                     $data['iduser'] = $user->getiduser();
                     
                     $cart->setData($data);
                 
+                    $cart->save();
+
+                    $cart->setToSession();
+                }else{
+                    
+                    $user = User::getFromSession(); 
+                    
+                    $data['iduser'] = $user->getiduser();
+                    
+                    $cart->setData($data);
+                    
                     $cart->save();
 
                     $cart->setToSession();
@@ -54,6 +66,34 @@ class Cart extends Model{
         
         
         return $cart;
+    }
+    
+    public static function formatValueToDecimal($value) : float{
+        $value = str_replace('.', '', $value);
+        return  str_replace(',', '.', $value);
+        
+    }
+
+    public static function setMsgError($msg){
+        
+        $_SESSION['Cart:SESSION_ERROR'] = $msg;
+        
+    }
+    
+    public static function getMsgError(){
+        
+        $msg = (isset($_SESSION[Cart::SESSION_ERROR]) ? $_SESSION[Cart::SESSION_ERROR] : '' );
+        
+        Cart::clearMsgError();
+        
+        return $msg;
+        
+    }
+
+    public static function clearMsgError(){
+        
+        $_SESSION[Cart::SESSION_ERROR] = null;
+        
     }
     
     public function setToSession(){
@@ -219,34 +259,6 @@ class Cart extends Model{
         }else{
             
         }
-    }
-    
-    public static function formatValueToDecimal($value) : float{
-        $value = str_replace('.', '', $value);
-        return  str_replace(',', '.', $value);
-        
-    }
-
-    public static function setMsgError($msg){
-        
-        $_SESSION['Cart:SESSION_ERROR'] = $msg;
-        
-    }
-    
-    public static function getMsgError(){
-        
-        $msg = (isset($_SESSION[Cart::SESSION_ERROR]) ? $_SESSION[Cart::SESSION_ERROR] : '' );
-        
-        Cart::clearMsgError();
-        
-        return $msg;
-        
-    }
-
-    public static function clearMsgError(){
-        
-        $_SESSION[Cart::SESSION_ERROR] = null;
-        
     }
     
     public function updateFreight(){

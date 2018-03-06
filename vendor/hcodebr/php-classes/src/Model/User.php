@@ -23,7 +23,7 @@ class User extends Model{
             ||
             !(int)$_SESSION[User::SESSION]["iduser"] > 0
         ){//Não está logado
-    
+           
             $rt = false; 
             
         }else{
@@ -37,7 +37,7 @@ class User extends Model{
                 $rt = true;   
                 
             }else{
-                
+                 
                 $rt = false;
                 
             }
@@ -125,55 +125,6 @@ class User extends Model{
         
     }
     
-    public function save(){
-        
-        $sql = new Sql();
-        $rs = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)" , array(
-            ":desperson"=>$this->getdesperson(),
-            ":deslogin"=>$this->getdeslogin(),
-            ":despassword"=>User::getPasswordHash($this->getdespassword()),
-            ":desemail"=>$this->getdesemail(),
-            ":nrphone"=>$this->getnrphone(),
-            ":inadmin"=>$this->getinadmin()
-        ));
-        
-        $this->setData($rs[0]);
-        
-    }
-    
-    public function get($iduser){
-        $sql = new Sql();
-        $rs = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser=:iduser", array(
-            ":iduser"=>$iduser
-        ));
-        
-        
-        $this->setData($rs[0]);
-    }
-    
-    public function update(){
-        $sql = new Sql();
-        $rs = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)" , array(
-            ":iduser"=>$this->getiduser(),
-            ":desperson"=>$this->getdesperson(),
-            ":deslogin"=>$this->getdeslogin(),
-            ":despassword"=>User::getPasswordHash($this->getdespassword()),
-            ":desemail"=>$this->getdesemail(),
-            ":nrphone"=>$this->getnrphone(),
-            ":inadmin"=>$this->getinadmin()
-        ));
-        
-        $this->setData($rs[0]);
-    }
-    
-    public function delete(){
-        $sql = new Sql();
-        $sql->query("CALL sp_users_delete(:iduser)", array(
-            ":iduser"=>$this->getiduser()   
-        ));
-         
-    }
-    
     public static function getForgot($email, $inadmin = true){
         $sql = new Sql();
         $rs = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE a.desemail=:EMAIL;",array(":EMAIL"=>$email));
@@ -197,9 +148,9 @@ class User extends Model{
                 $result = base64_encode($iv.$code);
                 
                 if ($inadmin === true) {
-                    $link = "http://e-commerce.com//admin/forgot/reset?code=$result";
+                    $link = "http://e-commerce.com/admin/forgot/reset?code=$result";
                 } else {
-                    $link = "http://e-commerce.com//forgot/reset?code=$result";
+                    $link = "http://e-commerce.com/forgot/reset?code=$result";
                 } 
 
                 $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir Senha! e-commerce", "forgot", 
@@ -247,16 +198,6 @@ class User extends Model{
         $sql = new Sql();
         
         $sql->select("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery=:idrecovery",array(":idrecovery"=>$idrecovery));
-    }
-    
-    public function setPassword($password){
-        
-        $sql = new Sql();
-        
-        $sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
-            ":password"=>$password,
-            ":iduser"=>$this->getiduser()
-        ));
     }
     
     public static function checkLoginExist($login){
@@ -325,6 +266,67 @@ class User extends Model{
         ]);
         
     }
+    
+    
+    public function save(){
+        
+        $sql = new Sql();
+        $rs = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)" , array(
+            ":desperson"=>$this->getdesperson(),
+            ":deslogin"=>$this->getdeslogin(),
+            ":despassword"=>User::getPasswordHash($this->getdespassword()),
+            ":desemail"=>$this->getdesemail(),
+            ":nrphone"=>$this->getnrphone(),
+            ":inadmin"=>$this->getinadmin()
+        ));
+        
+        $this->setData($rs[0]);
+        
+    }
+    
+    public function get($iduser){
+        $sql = new Sql();
+        $rs = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser=:iduser", array(
+            ":iduser"=>$iduser
+        ));
+        
+        
+        $this->setData($rs[0]);
+    }
+    
+    public function update(){
+        $sql = new Sql();
+        $rs = $sql->select("CALL sp_usersupdate_save(:iduser, :desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)" , array(
+            ":iduser"=>$this->getiduser(),
+            ":desperson"=>$this->getdesperson(),
+            ":deslogin"=>$this->getdeslogin(),
+            ":despassword"=>User::getPasswordHash($this->getdespassword()),
+            ":desemail"=>$this->getdesemail(),
+            ":nrphone"=>$this->getnrphone(),
+            ":inadmin"=>$this->getinadmin()
+        ));
+        
+        $this->setData($rs[0]);
+    }
+    
+    public function delete(){
+        $sql = new Sql();
+        $sql->query("CALL sp_users_delete(:iduser)", array(
+            ":iduser"=>$this->getiduser()   
+        ));
+         
+    }
+    
+    public function setPassword($password){
+        
+        $sql = new Sql();
+        
+        $sql->query("UPDATE tb_users SET despassword = :password WHERE iduser = :iduser", array(
+            ":password"=>$password,
+            ":iduser"=>$this->getiduser()
+        ));
+    }
+    
     
    
 }
