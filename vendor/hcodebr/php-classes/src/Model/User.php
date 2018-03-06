@@ -11,6 +11,7 @@ class User extends Model{
     const SECRET = "Hcode Store";
     const ERROR = 'UserError';
     const ERROR_REGISTER = 'UserErrorRegister';
+    const SUCCESS = 'UserSuccess';
     
     public static function checkLogin($inadmin = true){
         
@@ -210,6 +211,29 @@ class User extends Model{
         
         return(count($rs) > 0);
         
+        
+    }
+    
+    public static function setSuccess($msg){
+        
+        $_SESSION[User::SUCCESS] = $msg;
+        
+    }
+   
+    public static function getSuccess(){
+        
+        //Check if the SUCCESS is defined and exists, if it does, it'll return the SUCCESS msg
+        $msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]? $_SESSION[User::SUCCESS] : '' );
+        
+        User::clearSuccess();
+        
+        return $msg;
+        
+    }
+    
+    public static function clearSuccess(){
+        
+        $_SESSION[User::SUCCESS] = null;
         
     }
     
