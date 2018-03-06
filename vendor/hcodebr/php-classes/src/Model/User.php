@@ -10,6 +10,7 @@ class User extends Model{
     const SESSION = "User";
     const SECRET = "Hcode Store";
     const ERROR = 'UserError';
+    const ERROR_REGISTER = 'UserErrorRegister';
     
     public static function checkLogin($inadmin = true){
         
@@ -258,6 +259,19 @@ class User extends Model{
         ));
     }
     
+    public static function checkLoginExist($login){
+    
+        $sql = new Sql();
+        
+        $rs = $sql->select("SELECT * FROM tb_users WHERE deslogin = :deslogin",[
+            ':deslogin'=>$login
+        ]);
+        
+        return(count($rs) > 0);
+        
+        
+    }
+    
     public static function setError($msg){
         
         $_SESSION[User::ERROR] = $msg;
@@ -278,6 +292,29 @@ class User extends Model{
     public static function clearError(){
         
         $_SESSION[User::ERROR] = null;
+        
+    }
+    
+    public static function setErrorRegister($msg){
+        
+        $_SESSION[User::ERROR_REGISTER] = $msg;
+        
+    }
+   
+    public static function getErrorRegister(){
+        
+        //Check if the ERROR is defined and exists, if it does, it'll return the ERROR msg
+        $msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]? $_SESSION[User::ERROR_REGISTER] : '' );
+        
+        User::clearErrorRegister();
+        
+        return $msg;
+        
+    }
+    
+    public static function clearErrorRegister(){
+        
+        $_SESSION[User::ERROR_REGISTER] = null;
         
     }
    
