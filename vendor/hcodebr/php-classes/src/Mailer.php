@@ -89,7 +89,8 @@ class Mailer{
 
         //Attach an image file
         $this->mail->addAttachment('images/phpmailer_mini.png');
-
+        
+        $this->mail->CharSet = 'UTF-8';
         
 
     }
