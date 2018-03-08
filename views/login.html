@@ -23,7 +23,7 @@
                 {/if}
 
                 
-                <form action="/login" id="login-form-wrap" class="login" method="post">
+                <form action="/login?{if="$checkout!=''"}checkout={$checkout}{/if}" id="login-form-wrap" class="login" method="post">
                     <h2>Acessar</h2>
                     <p class="form-row form-row-first">
                         <label for="login">E-mail <span class="required">*</span>

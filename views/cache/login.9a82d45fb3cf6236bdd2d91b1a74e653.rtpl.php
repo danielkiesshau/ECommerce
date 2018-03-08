@@ -26,7 +26,7 @@
 
 
                 
-                <form action="/login" id="login-form-wrap" class="login" method="post">
+                <form action="/login?<?php if( $checkout!='' ){ ?>checkout=<?php echo htmlspecialchars( $checkout, ENT_COMPAT, 'UTF-8', FALSE ); ?><?php } ?>" id="login-form-wrap" class="login" method="post">
                     <h2>Acessar</h2>
                     <p class="form-row form-row-first">
                         <label for="login">E-mail <span class="required">*</span>

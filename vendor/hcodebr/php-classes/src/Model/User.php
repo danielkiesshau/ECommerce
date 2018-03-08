@@ -29,7 +29,7 @@ class User extends Model{
             
         }else{
             
-            if($inadmin === true && (bool)$_SESSION[User::SESSION]['indadmin'] === true){//Rota de ADM
+            if($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true){//Rota de ADM
                 
                 $rt = true;
                 
@@ -61,7 +61,7 @@ class User extends Model{
     }
     
     //login and creates a session for the user
-    public static function login($login,$password){
+    public static function login($login, $password){
         $sql = new Sql();
         
         $rs = $sql->select("
@@ -72,7 +72,7 @@ class User extends Model{
         
         if(count($rs) == 0){
             //Contra barra no Exception devido ao namespace atual ser o Model
-            throw new \Exception("Usuário inexistente e senha inválido",1);
+            throw new \Exception("Usuário inexistente ou senha inválida",1);
         }
         
         $data = $rs[0];
@@ -89,12 +89,12 @@ class User extends Model{
            
         }else{
            
-            throw new \Exception("Usuário inexistente ou senha inválido", 1);
+            throw new \Exception("Usuário inexistente ou senha inválida", 1);
            
         }
     }
     
-    public static function verifyLogin($inadmin = true){
+    public static function verifyLogin($inadmin = true, $checkout = 0){
         
         if(!User::checkLogin($inadmin)){
             
@@ -102,10 +102,12 @@ class User extends Model{
                 
                 header("Location: /admin/login");
                 
+            }else if($checkout = 1){
+                
+                header("Location: /login?checkout=1");
+                
             }else{
-                
-                header("Location: /login");
-                
+                header("Location: /login?checkout=0");
             }
             exit;
             
