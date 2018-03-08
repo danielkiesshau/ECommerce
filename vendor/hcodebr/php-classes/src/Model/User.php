@@ -296,15 +296,16 @@ class User extends Model{
         
         $sql = new Sql();
         $rs = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)" , array(
-            ":desperson"=>utf8_decode($this->getdesperson()),
+            ":desperson"=>$this->getdesperson(),
             ":deslogin"=>$this->getdeslogin(),
             ":despassword"=>User::getPasswordHash($this->getdespassword()),
             ":desemail"=>$this->getdesemail(),
             ":nrphone"=>$this->getnrphone(),
             ":inadmin"=>$this->getinadmin()
         ));
-        
-        $this->setData($rs[0]);
+        if($rs != null){
+            $this->setData($rs[0]);
+        }
         
     }
     
@@ -351,6 +352,23 @@ class User extends Model{
         ));
     }
     
+    public function getOrders(){
+        $sql = new Sql();
+         
+        $rs = $sql->select("
+            SELECT * FROM tb_orders a
+            INNER JOIN tb_ordersstatus b USING(idstatus)
+            INNER JOIN tb_carts c USING(idcart)
+            INNER JOIN tb_users d ON d.iduser = a.iduser
+            INNER JOIN tb_addresses e USING(idaddress) 
+            INNER JOIN tb_persons f ON f.idperson = d.idperson
+            WHERE a.iduser = :iduser
+        ",[
+            ':iduser'=>$this->getiduser()
+        ]);
+        
+        return $rs;
+    }
     
    
 }
