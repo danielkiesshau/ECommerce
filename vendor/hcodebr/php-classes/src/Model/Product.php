@@ -7,12 +7,64 @@ use \Hcode\Mailer;
 
 class Product extends Model{
 
+    public static function getPage($page = 1, $itemsPerPage = 8){
+        $start = ($page-1)*$itemsPerPage;
+        
+        $sql = new Sql();
+        $rs = $sql->select("
+            SELECT SQL_CALC_FOUND_ROWS * 
+            FROM tb_products ORDER BY desproduct
+            LIMIT $start, $itemsPerPage;
+        ");
+        $total = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+        return [
+                'data'=>$rs,
+                'total'=>(int)$total[0]["nrtotal"],
+                'pages'=>ceil($total[0]["nrtotal"]/ $itemsPerPage)
+               ];
+    }
+   
+    public static function getPageSearch($search, $page = 1, $itemsPerPage = 8){
+        $start = ($page-1)*$itemsPerPage;
+        $adm = 0;
+        strcasecmp($search,'admin') == 0 ? $adm = 1 : 0;
+        $sql = new Sql();
+        
+        $rs = $sql->select("
+            SELECT SQL_CALC_FOUND_ROWS * 
+            FROM tb_products 
+            WHERE desproduct LIKE :search 
+            ORDER BY desproduct
+            LIMIT $start, $itemsPerPage;
+        ",[
+            ':search'=>'%'.$search.'%',
+        ]);
+        $total = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+        return [
+                'data'=>$rs,
+                'total'=>(int)$total[0]["nrtotal"],
+                'pages'=>ceil($total[0]["nrtotal"]/ $itemsPerPage)
+               ];
+    }
     
     public static function listAll(){
         $sql = new Sql();
         return  $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
     }
    
+    public static function checkList($list){
+        foreach($list as &$row){
+            $p = new Product();
+            $p->setData($row);
+            $row = $p->getValues();
+            
+        }
+        
+        return $list;
+    }
+
     public function save(){
         $sql = new Sql();
        
@@ -32,19 +84,6 @@ class Product extends Model{
         $this->setData($rs[0]);
         
     }
-    
-    public static function checkList($list){
-        foreach($list as &$row){
-            $p = new Product();
-            $p->setData($row);
-            $row = $p->getValues();
-            
-        }
-        
-        return $list;
-    }
-    
-
     
     public function get($idproduct){
         $sql = new Sql();
