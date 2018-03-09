@@ -3,31 +3,56 @@
 use \Hcode\PageAdmin;
 use \Hcode\Model\User;
 
-
-
-$app->get('/admin/users/create', function() {
+$app->get('/admin/users/:iduser/password', function($iduser) {
     
 	User::verifyLogin();
+    
+    $user = new User();
+    
+    $user->get((int)$iduser);
+    
     $page = new PageAdmin();
     
-    $page->setTpl("users-create");
+    $page->setTpl("users-password", array(
+        "user"=>$user->getValues(),
+        "msgError"=>$user->getError(),
+        "msgSuccess"=>$user->getSuccess()
+    ));
 });
 
-$app->post('/admin/users/create', function() {
+$app->post('/admin/users/:iduser/password', function($iduser) {
     
 	User::verifyLogin();
-   
-    $user =  new User();
     
-    $_POST['inadmin'] = (isset($_POST['inadmin']))?1:0;
+    if(!isset($_POST['despassword']) || $_POST['despassword'] === ''){
+        User::setError("Preencha a nova senha");
+        header("Location: /admin/users/$iduser/password");
+        exit;
+    }
     
-    $user->setData($_POST);
+    if(!isset($_POST['despassword-confirm']) || $_POST['despassword-confirm'] === ''){
+        User::setError("Preencha a confirmação da nova senha");
+        header("Location: /admin/users/$iduser/password");
+        exit;
+    }
     
-    $user->save();
+    if($_POST['despassword'] !== $_POST['despassword-confirm']){
+        User::setError("As senhas devem ser iguais, favor informa-las novamente");
+        header("Location: /admin/users/$iduser/password");
+        exit;
+    }
     
-    header("Location: /admin/users");
+    $user = new User();
     
+    $user->get((int)$iduser);
+    
+    $user->setPassword(User::getPasswordHash($_POST['despassword']));
+    
+    User::setSuccess("Senha alterada com sucesso!");
+    
+    header("Location: /admin/users/$iduser/password");
     exit;
+
 });
 
 $app->get('/admin/users/:iduser/delete', function($iduser) {
@@ -75,6 +100,31 @@ $app->post('/admin/users/:iduser', function($iduser) {
     header("Location: /admin/users");
     exit;
     
+});
+
+$app->get('/admin/users/create', function() {
+    
+	User::verifyLogin();
+    $page = new PageAdmin();
+    
+    $page->setTpl("users-create");
+});
+
+$app->post('/admin/users/create', function() {
+    
+	User::verifyLogin();
+   
+    $user =  new User();
+    
+    $_POST['inadmin'] = (isset($_POST['inadmin']))?1:0;
+    
+    $user->setData($_POST);
+    
+    $user->save();
+    
+    header("Location: /admin/users");
+    
+    exit;
 });
 
 $app->get('/admin/users', function() {
