@@ -293,7 +293,7 @@ class User extends Model{
         
     }
     
-    public static function getPage($page = 1, $itemsPerPage = 8){
+    public static function getPage($page = 1, $itemsPerPage = 9){
         $start = ($page-1)*$itemsPerPage;
         
         $sql = new Sql();
@@ -312,7 +312,7 @@ class User extends Model{
                ];
     }
    
-    public static function getPageSearch($search, $page = 1, $itemsPerPage = 8){
+    public static function getPageSearch($search, $page = 1, $itemsPerPage = 9){
         $start = ($page-1)*$itemsPerPage;
         $adm = 0;
         strcasecmp($search,'admin') == 0 ? $adm = 1 : 0;

@@ -8,6 +8,60 @@ use \Hcode\Mailer;
 
 class Category extends Model{
 
+    public static function getPage($page = 1, $itemsPerPage = 8){
+        $start = ($page-1)*$itemsPerPage;
+        
+        $sql = new Sql();
+        $rs = $sql->select("
+            SELECT SQL_CALC_FOUND_ROWS * 
+            FROM tb_categories ORDER BY descategory
+            LIMIT $start, $itemsPerPage;
+        ");
+        $total = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+        return [
+                'data'=>$rs,
+                'total'=>(int)$total[0]["nrtotal"],
+                'pages'=>ceil($total[0]["nrtotal"]/ $itemsPerPage)
+               ];
+    }
+   
+    public static function getPageSearch($search, $page = 1, $itemsPerPage = 8){
+        $start = ($page-1)*$itemsPerPage;
+        $adm = 0;
+        strcasecmp($search,'admin') == 0 ? $adm = 1 : 0;
+        $sql = new Sql();
+        
+        $rs = $sql->select("
+            SELECT SQL_CALC_FOUND_ROWS * FROM tb_categories 
+            WHERE descategory LIKE :search 
+            ORDER BY descategory
+            LIMIT $start, $itemsPerPage;
+        ",[
+            ':search'=>'%'.$search.'%',
+        ]);
+        $total = $sql->select("SELECT FOUND_ROWS() AS nrtotal;");
+
+        return [
+                'data'=>$rs,
+                'total'=>(int)$total[0]["nrtotal"],
+                'pages'=>ceil($total[0]["nrtotal"]/ $itemsPerPage)
+               ];
+    }
+    
+    public static function updateFile(){
+        $categories = Category::listAll();
+
+        $html = array();
+
+        foreach($categories as $row){
+            array_push($html,'<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
+        }
+
+        file_put_contents($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR."views".DIRECTORY_SEPARATOR."categories-menu.html", implode("",$html));
+
+        
+    }
     
     public static function listAll(){
         $sql = new Sql();
@@ -39,20 +93,6 @@ class Category extends Model{
         $sql->query("DELETE FROM tb_categories WHERE idcategory = :idcategory", array(":idcategory"=>$this->getidcategory()));
         
         Category::updateFile();
-    }
-    
-    public static function updateFile(){
-        $categories = Category::listAll();
-        
-        $html = array();
-        
-        foreach($categories as $row){
-            array_push($html,'<li><a href="/categories/'.$row['idcategory'].'">'.$row['descategory'].'</a></li>');
-        }
-        
-        file_put_contents($_SERVER['DOCUMENT_ROOT'].DIRECTORY_SEPARATOR."views".DIRECTORY_SEPARATOR."categories-menu.html", implode("",$html));
-            
-        
     }
 
     public function getProducts($related = true){
