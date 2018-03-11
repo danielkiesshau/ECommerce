@@ -4,10 +4,11 @@ namespace Hcode\DB;
 
 class Sql {
 
-	const HOSTNAME = "127.0.0.1";
-	const USERNAME = "root";
-	const PASSWORD = "";
-	const DBNAME = "db_ecommerce";
+	const HOSTNAME;
+	const USERNAME;
+	const PASSWORD;
+	const DBNAME;
+    const PORT;
 
 	private $conn;
 
@@ -22,6 +23,14 @@ class Sql {
 		);
 
 	}
+    
+    public static function setDBConfig($dbopts){
+        Sql::HOSTNAME = $dbopts["host"];
+        Sql::USERNAME = $dbopts["user"];
+        Sql::PASSWORD = $dbopts["pass"];
+        Sql::DBNAME = "db_ecommerce";
+        Sql::PORT = $dbopts["port"];
+    }
 
 	private function setParams($statement, $parameters = array())
 	{
