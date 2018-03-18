@@ -295,7 +295,7 @@ $app->post("/forgot/reset",function(){
     
 });
 
-$app->get("\profile", function(){
+$app->get("/profile", function(){
     
     User::verifyLogin(false);
     $user = User::getFromSession();
