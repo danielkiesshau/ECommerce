@@ -4,17 +4,16 @@ namespace Hcode\DB;
 
 class Sql {
 
-	const HOSTNAME;
-	const USERNAME;
-	const PASSWORD;
-	const DBNAME;
-    const PORT;
+	const HOSTNAME = "den1.mysql1.gear.host";
+	const USERNAME = "dbecommerce1";
+	const PASSWORD = "Qn0o!gYO-7ZJ";
+	const DBNAME = "dbecommerce1";
+    const PORT = 3306;
 
 	private $conn;
 
 	public function __construct()
 	{
-
 		$this->conn = new \PDO(
 			"mysql:dbname=".Sql::DBNAME.";host=".Sql::HOSTNAME.";charset=utf8", 
 			Sql::USERNAME,
