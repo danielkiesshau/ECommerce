@@ -11,21 +11,6 @@ $app = new Slim();
 
 $app->config('debug', true);
 
-$dbopts = parse_url(getenv('postgresql-opaque-85309'));
-Sql::setDBConfig($dbopts);
-$app->register(new Csanquer\Silex\PdoServiceProvider\Provider\PDOServiceProvider('pdo'),
-               array(
-                'pdo.server' => array(
-                   'driver'   => 'mysql',
-                   'user' => $dbopts["user"],
-                   'password' => $dbopts["pass"],
-                   'host' => $dbopts["host"],
-                   'port' => $dbopts["port"],
-                   'dbname' => ltrim($dbopts["path"],'/')
-                   )
-               )
-);
-
 require_once("functions.php");
 require_once("site.php");
 

@@ -22,14 +22,6 @@ class Sql {
 		);
 
 	}
-    
-    public static function setDBConfig($dbopts){
-        Sql::HOSTNAME = $dbopts["host"];
-        Sql::USERNAME = $dbopts["user"];
-        Sql::PASSWORD = $dbopts["pass"];
-        Sql::DBNAME = "db_ecommerce";
-        Sql::PORT = $dbopts["port"];
-    }
 
 	private function setParams($statement, $parameters = array())
 	{
