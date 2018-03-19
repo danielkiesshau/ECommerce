@@ -3,7 +3,6 @@
 use \Hcode\Model\User;
 use \Hcode\Model\Cart;
 
-echo "OLA!";
 function formatPrice($vlprice){
 
     if(!$vlprice > 0) $vlprice = 0;

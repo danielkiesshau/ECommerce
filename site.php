@@ -10,7 +10,7 @@ use \Hcode\Model\OrderStatus;
 
 $app->get('/', function() {
     $products = Product::listAll();
-    
+    echo "OLA!";
 	$page = new Page();
     
     $page->setTpl("index",[
