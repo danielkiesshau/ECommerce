@@ -1,6 +1,4 @@
 <?php
-require_once("vendor/autoload.php");
-use \Slim\Slim;
 use \Hcode\Page;
 use \Hcode\Model\Product;
 use \Hcode\Model\Category;
@@ -9,8 +7,6 @@ use \Hcode\Model\Address;
 use \Hcode\Model\User;
 use \Hcode\Model\Order;
 use \Hcode\Model\OrderStatus;
-
-$app = new Slim();
 
 $app->get('/', function() {
     $products = Product::listAll();
@@ -68,7 +64,7 @@ $app->get('/products/:desurl', function($desurl) {
 });
 
 $app->get("/cart", function(){
-     echo "OLA!";
+    
     $cart = Cart::getFromSession();
     $page = new Page();
     $page->setTpl("cart",[
