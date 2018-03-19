@@ -10,7 +10,6 @@ use \Hcode\Model\OrderStatus;
 
 $app->get('/', function() {
     $products = Product::listAll();
-    echo "OLA!";
 	$page = new Page();
     
     $page->setTpl("index",[
@@ -65,7 +64,7 @@ $app->get('/products/:desurl', function($desurl) {
 });
 
 $app->get("/cart", function(){
-    
+     echo "OLA!";
     $cart = Cart::getFromSession();
     $page = new Page();
     $page->setTpl("cart",[
