@@ -151,9 +151,9 @@ class User extends Model{
                 $result = base64_encode($iv.$code);
                 
                 if ($inadmin === true) {
-                    $link = "http://e-commerce.com/admin/forgot/reset?code=$result";
+                    $link = "https://infinite-beach-13116.herokuapp.com/admin/forgot/reset?code=$result";
                 } else {
-                    $link = "http://e-commerce.com/forgot/reset?code=$result";
+                    $link = "https://infinite-beach-13116.herokuapp.com/forgot/reset?code=$result";
                 } 
 
                 $mailer = new Mailer($data['desemail'], $data['desperson'], "Redefinir Senha! e-commerce", "forgot", 
